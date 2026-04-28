@@ -1,0 +1,8 @@
+#!/bin/bash
+
+latexdockercmd pdflatex main.tex
+latexdockercmd bibtex main
+latexdockercmd pdflatex main.tex
+latexdockercmd pdflatex main.tex
+
+rm main.aux main.bbl main.blg main.log main.out main.toc
