@@ -1,3 +1,38 @@
 \chapter{Introduzione}
 
-Prova delle citazioni\cite{lll}, vediamo se funziona anche lo script
+Prima di poter parlare di \textbf{Algoritmi Crittografici \textit{Post Quantum}}, è necessario andare a capire per quale motivo si sono resi necessari.
+
+Il \textbf{\textit{Quantum Computing}} è stato ideato da Yuri Manin e Richard Feynman, che presupponeva di utilizzare i fenomi della \textbf{meccanica quantistica} come la \textbf{\textit{superposition}}, \textbf{\textit{interference}} e \textbf{\textit{entanglement}} per eseguire operazioni sui dati.
+\begin{itemize}[nosep]
+    \item un \textbf{qubit} è l'analogo quantistico del classico bit, e può essere due valori contemporaneamente con una probabilità diversa per ognuno.
+    \item un \textbf{\textit{n-qubit register}} può essere in $2^n$ stati nello stesso momento, ognuno, anche in questo caso, con la stessa probabilità.
+\end{itemize}
+Quando una funzione $f: \{0, 1\}^n \rightarrow \{0, 1\}^n$ è applicato ad un \textit{n-qubit register}, vengono simultaneamente valutati tutti i $2^n$ stati. Nel momento in cui viene \textbf{misurato} il valore di un \textit{n-qubit register}, questo collasserà su uno del $2^n$ possibili valori secondo la sua distribuzione di probabilità sottostante. In linea di massima possiamo definire i computer quantistici come ``\textit{massively parallel machines}''.
+
+\begin{flushleft}
+    \textbf{1.} La minaccia dei \textit{Quantum Computer}: \textbf{\textit{Shor's Algorithm}}\cite{shor}. L'intero sistema \textbf{PKI} utilizza alla sua base tre algoritmi:
+    \begin{enumerate}[nosep]
+        \item \textbf{RSA}: la cui sicurezza è basata sulla difficoltà della fattorizzazione di numeri interi.
+        \item \textbf{DH}: la cui sicurezza è basata sulla complessità del \textit{discrete logarithm problem}.
+        \item \textbf{ECC}: la cui sicurezza è basata sulla complessità del \textit{elliptic curve discrete logarithm problem}.
+    \end{enumerate}
+    Nel 1994, Peter Shor ha scoperto un algoritmo quantistico efficente (\textit{polynomial time}) per risolvere questi problemi. In questo modo, tutte le implementazioni RSA, DH e ECC possono completamente risolte dai computer quantistici.
+\end{flushleft}
+
+\newpage
+
+\begin{flushleft}
+    \textbf{2.} La minaccia dei \textit{Quantum Computer}: \textbf{\textit{Grover}}\cite{grover}.
+    \begin{boxA}
+        Consideriamo una funzione $F: \{0, 1\}^n \rightarrow \{0, 1\}$ tale che:
+        \begin{itemize}[nosep]
+            \item $F$ è facilmente calcolabile
+            \item $F(x) = 1$ per esattamente un input $x \in \{0, 1\}^n$
+        \end{itemize}
+
+        \textcolor{blue}{\textit{Grover's algorithm}}: nel 1996, Lov Grover ha scoperto un algoritmo quantistico che permettesse di trovare la $x \in \{0, 1\}^n \; | \; F(x) = 1$ in $\sqrt{2^n}$ valutazione della funzione $F$.
+    \end{boxA}
+    \textcolor{blue}{\textit{Exhaustive key search}}: se consideriamo AES con una chiave (\textit{secret key}) lunga $l$-bit. Supponiamo di conoscere $t$ ovvero una coppia plaintext-ciphertext $(m_i, c_i)$, dove $t$ è tale che il numero di falsi positivi sulle chiavi è molto vicino a 0.
+
+    Possiamo definire $F: \{0, 1\}^{\ell} \rightarrow \{0, 1\}$ dove $F(k) = 1 \Leftrightarrow \text{AES}_k(m_i) = c_i \; \forall i \in \{1, t\}$ e $F(k) = 0$ negli altri casi. Allora l'algortimo di Grover può trovare la chiave segreta non in $2^{\ell}$ operazioni classiche, ma in $2^{{\ell}/2}$ \textbf{operazioni quantistiche}.
+\end{flushleft}
