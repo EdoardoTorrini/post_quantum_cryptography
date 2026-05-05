@@ -32,7 +32,23 @@ Quando una funzione $f: \{0, 1\}^n \rightarrow \{0, 1\}^n$ è applicato ad un \t
 
         \textcolor{blue}{\textit{Grover's algorithm}}: nel 1996, Lov Grover ha scoperto un algoritmo quantistico che permettesse di trovare la $x \in \{0, 1\}^n \; | \; F(x) = 1$ in $\sqrt{2^n}$ valutazione della funzione $F$.
     \end{boxA}
-    \textcolor{blue}{\textit{Exhaustive key search}}: se consideriamo AES con una chiave (\textit{secret key}) lunga $l$-bit. Supponiamo di conoscere $t$ ovvero una coppia plaintext-ciphertext $(m_i, c_i)$, dove $t$ è tale che il numero di falsi positivi sulle chiavi è molto vicino a 0.
+    \textcolor{blue}{\textit{Exhaustive key search}}: se consideriamo AES con una chiave (\textit{secret key}) lunga $\ell$-bit. Supponiamo di conoscere $t$ ovvero una coppia plaintext-ciphertext $(m_i, c_i)$, dove $t$ è tale che il numero di falsi positivi -- è una chiave $k'$ che permette di risolvere $c_i = \text{AES}_{k'}(m_i)$ con $k' \neq k$  -- sulle chiavi è molto vicino a 0.
 
     Possiamo definire $F: \{0, 1\}^{\ell} \rightarrow \{0, 1\}$ dove $F(k) = 1 \Leftrightarrow \text{AES}_k(m_i) = c_i \; \forall i \in \{1, t\}$ e $F(k) = 0$ negli altri casi. Allora l'algortimo di Grover può trovare la chiave segreta non in $2^{\ell}$ operazioni classiche, ma in $2^{{\ell}/2}$ \textbf{operazioni quantistiche}.
+\end{flushleft}
+
+\begin{flushleft}
+    \textbf{Timeline dei Quantum Computer} \newline
+    \begin{figure}[h]
+        \includegraphics[width=\textwidth]{img/00_quantum_timeline}
+        \caption{Evoluzione del numero dei qubits nei Quantum Computer}
+        \label{fig:00_quantum_timeline}
+    \end{figure}
+
+    Per fattorizzare una chiave RSA a 2048 bit in tempo polinomiale sfruttando l'algoritmo di Shor, un computer quantistico richiede registri composti da diverse migliaia di qubit --- almeno registri a 2048 qubits. Attenzione, però, non tutti i qubit sono uguali: c'è una grande differenza tra \textbf{qubit fisici} (l'hardware reale) e \textbf{qubit logici} (l'unità di calcolo vera e propria). Poiché i qubit fisici sono estremamente delicati e inclini a generare errori per via del rumore ambientale e della decoerenza, non è possibile utilizzarli direttamente per calcoli complessi. Per renderli \textbf{\textit{fault-tolerant}} è necessario applicare il protocollo \textbf{\textit{Quantum Error Correction} (QEC)}\cite{shor_qec}, il quale permette di raggruppare un elevato numero di qubit fisici --- singolarmente instabili e imperfetti --- per sintetizzare un unico qubit logico, stabile e affidabile per il calcolo.
+
+    Viene stimato che siano necessari migliaia di qubit fisici per costruire un qubit logico. In questo modo per riuscire a costruire un registro di almeno 2048 qubit logici sono necessari milioni di qubit fisici. Uno studio del 2021, portato avanti da Gidney e Ekers \cite{Gidney_2021} stima che siano necessari 6,000 qubit logici e 20,000,000 qubit fisici per riuscire a fattorizzare una chiave RSA in 8 ore.
+
+    La minaccia principale, che però non è così immediata, degli algoritmi di Shor e Grover è la possibilità di catturare e memorizzare grosse quantità di traffico internet fino a che non ci sarà la possibilità di decifrarlo senza la conoscenza della chiave privata: \textbf{\textit{Harvest Now Decrypt Later} (HNDL) \textit{attacks}}.
+    \input{table/00_nist_pqc}
 \end{flushleft}
