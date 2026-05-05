@@ -1,3 +1,56 @@
 \chapter{Lattice-Based Cryptography}
 
 \section{Prerequisiti Matematici}
+
+\begin{flushleft}
+    \textcolor{red}{\textbf{Aritmetica Modulare}} \newline
+    Consideriamo un intero $q \in \mathbb{N} \; | \; q \geq 2$. Definiamo $a \equiv b \mod q$ significa che $\exists k \in \mathbb{Z} \; | \; k \cdot q = a - b$, quindi vuol dire che $a - b$ è un \textbf{multiplo} di $q$. Andiamo a definire $r$ come il resto della divisione intera tra $a \in \mathbb{Z}$ e $q \in \mathbb{N}$ e si scrive $r = a \mod q$ che può essere riscritto tramite la definizione della \textbf{divisione euclidea} $a = q \cdot k + r$ quindi $0 \geq r \geq q - 1$.
+
+    Definiamo l'insieme $\mathbb{Z}_q = \{0, 1, 2, ..., q - 1\}$ dove le operazioni di \textbf{addizione}, \textbf{sottrazione} e \textbf{moltiplicazione} vengono eseguite $\mod q$.
+\end{flushleft}
+
+\begin{flushleft}
+    \textcolor{red}{\textbf{Anelli Polinomiali (\textit{Polynomial Rings})}} \newline
+    Consideriamo $q \in \mathbb{N}$ un modulo primo. Definiamo $\mathbb{Z}_q[x]$ il set di tutti i polinomi in $x$ con coefficenti in $\mathbb{Z}_q$. Quando viene eseguita operazioni --- addizione, sottrazioni, moltiplicazione e divisioni --- polinomiali in $\mathbb{Z}_q[x]$ tutti i coefficenti aritmetici sono eseguiti in $\mathbb{Z}_q$.
+
+    \begin{boxA}
+        \textcolor{olive}{\textbf{Esempio}} \newline
+        Consideriamo $q = 7$ e consideriamo $f(x) = 5 + 4x^2 + 3x^3 \in \mathbb{Z}_7[x]$ e $g(x) = 6 + 3x + 2x^2 \in \mathbb{Z}_7[x]$.
+        \begin{math}
+            f(x) + g(x) = 4 + 3x + 6x^2 + 3x^3 \\
+            f(x) - g(x) = 6 + 4x + 2x^2 + 3x^3 \\
+            f(x) \times g(x) = 2 + x + 6x^2 + 2x^3 + 3x^4 + 6x^5
+        \end{math}
+    \end{boxA}
+\end{flushleft}
+
+\begin{flushleft}
+    \textcolor{red}{\textbf{L'Anello Polinomiale $R_q = \mathbb{Z}_q[x](x^n + 1)$}} \newline
+    Consideriamo $q \in \mathbb{N}$ un modulo primo e $n \in \mathbb{N}$. Il \textbf{\textit{Polynomial Ring}} $R_q = \mathbb{Z}_q[x]/(x^n + 1)$ è composto dai polinomi in $\mathbb{Z}_q[x]$ di grado minore di $n$, con le moltiplicazioni dei polinomi eseguito modulo il \textbf{polinomio di riduzione (\textit{reduction polynomial})} $x^n + 1$ (in parole semplici il risultato della moltiplicazione è il resto della divisione polinomiale modulare). Quindi la moltiplicazione tra $f(x), g(x) \in R_q$:
+    \begin{itemize}[nosep]
+        \item calcolare $h(x) = f(x) \cdot g(x) \; h(x) \in \mathbb{Z}_q$ dove il grado è al massimo $2n - 2$
+        \item dividere $h(x)$ per il polinomio $x^n + 1$ e calcoliamo il resto $r(x)$ con grado al massimo $n - 1$
+        \item l'operazione $f(x) \times g(x) = r(x) \in R_q$
+    \end{itemize}
+
+    \begin{boxA}
+        \textcolor{olive}{\textbf{Esempio}} \newline
+        Consideriamo $q = 41$ e $n = 4$. Quindi $R_q$ comprende i polinomi in $\mathbb{Z}_{41}[x]$ di grado al massimo 3. Consideriamo $f(x) = 32 + 17x^2 + 22x^3 \in R_q$ e $g(x) = 11 + 7x + 19x^2 + x^3 \in R_q$.
+
+        {\centering
+            $h(x) = f(x) \times g(x) = 24 + 19x + 16x^2 + 24x^3 + 26x^4 + 25x^5 + 22x^6$
+        \par}
+
+        A questo punto bisogna eseguire la divisione di $h(x)$ per il polinomio $x^4 + 1$ (\textit{è possibile eseguirla andando a sostituire $x^4$ con $-1$, $x^5$ con $-x$, e $x^6$ con $-x^2$ e dopo semplificare}). In questo modo otteniamo:
+
+        {\centering
+            $r(x) = 24 + 19x + 16x^2 + 24x^3 - 26 - 25x - 22x^2 = 39 + 35x + 35x^2 + 24x^3$
+        \par}
+
+        Quindi il risultato dell'operazione $f(x) \times g(x) = 39 + 35x + 35x^2 + 24x^3 \in R_q$
+    \end{boxA}
+\end{flushleft}
+
+\begin{flushleft}
+    \textcolor{red}{\textbf{Rapperesentazione di un Polinomio come un Vettore}} \newline
+\end{flushleft}
