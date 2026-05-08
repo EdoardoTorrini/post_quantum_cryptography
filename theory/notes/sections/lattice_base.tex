@@ -24,6 +24,8 @@
     \end{boxA}
 \end{flushleft}
 
+\newpage
+
 \begin{flushleft}
     \textcolor{red}{\textbf{L'Anello Polinomiale $R_q = \mathbb{Z}_q[x](x^n + 1)$}} \newline
     Consideriamo $q \in \mathbb{N}$ un modulo primo e $n \in \mathbb{N}$. Il \textbf{\textit{Polynomial Ring}} $R_q = \mathbb{Z}_q[x]/(x^n + 1)$ è composto dai polinomi in $\mathbb{Z}_q[x]$ di grado minore di $n$, con le moltiplicazioni dei polinomi eseguito modulo il \textbf{polinomio di riduzione (\textit{reduction polynomial})} $x^n + 1$ (in parole semplici il risultato della moltiplicazione è il resto della divisione polinomiale modulare). Quindi la moltiplicazione tra $f(x), g(x) \in R_q$:
@@ -53,4 +55,116 @@
 
 \begin{flushleft}
     \textcolor{red}{\textbf{Rapperesentazione di un Polinomio come un Vettore}} \newline
+    Un polinomio $f(x) = a_0 + a_1 x + ... + a_{n-1}x^{n-1} \in R_q = \mathbb{Z}[x](x^n+1)$ può essere rappresentato come il vettore dei coefficenti $f = (a_0, a_1, ..., a_{n-1})$; la cui lunghezza è esattamente $n$.
+
+    \begin{boxA}
+        \textcolor{olive}{\textbf{Esempio}} \newline
+        Consideriamo l'\textbf{anello polinomiale} $R_q = \mathbb{Z}_{41}[x](x^4+1)$. Definiamo su di esso due polinomi: $f(x) = 23 + 11x^2 + 7x^3 \in R_q$ e $g(x) = 40 + 5x + 16x^2 \in R_q$, essi possono essere rappresentati tramite i loro vettori:
+
+        {\centering
+            $f = (23, 0, 11, 7)$ \\
+            $g = (40, 5, 16, 0)$
+        \par}
+
+        In $R_q$ avremo quindi:
+        \begin{itemize}[nosep]
+            \item $f+g = (23, 0, 11, 7) + (40, 5, 16, 0) = (63, 5, 27, 7) \mod 41 = (22, 5, 27, 7)$
+            \item $f-g = (23, 0, 11, 7) - (40, 5, 16, 0) = (-17, -5, -5, 7) \mod 41 = (24, 36, 36, 7)$
+            \item $f \times g = (23, 0, 11, 7) \times (40, 5, 16, 0) = (12, 3, 29, 7)$
+        \end{itemize}
+    \end{boxA}
+\end{flushleft}
+
+\begin{flushleft}
+    \textcolor{red}{\textbf{Il modulo $R_q^k$}} \newline
+    Consideriamo $k \in \mathbb{N}$. Gli elementi del \textbf{modulo} $R_q^k$ sono i vettori di lunghezza $k$ di polinomi in $R_q$. Le operazioni di addizione e sottrazione degli elementi $R_q^k$ sono \textbf{\textit{component-wise}} e il risultato è anch'esso un elemento in $R_q^k$. L'\textbf{\textit{inner product}} di due vettori in $R_q^k$ è un polinomio $f(x) \in R_q$. \textit{Tutti i vettori in $R_q^k$ sono rappresentati come vettori colonna}.
+
+    \begin{boxA}
+        \textcolor{olive}{\textbf{Esempio}} \newline
+        Consideriamo $q = 137$, $n=4$, $R_q = \mathbb{Z}_{137}[x](x^4+1)$ e $k=3$. Consideriamo due vettori $a, b \in R_q^k$:
+        \vspace{-3.5em}
+
+        {\centering
+            \[
+            a = \left[
+                \begin{array}{l}
+                    93 + 51x + 34x^2 + 54x^3 \\
+                    27 + 87x + 81x^2 + 6x^3 \\
+                    112 + 15x + 46x^2 + 122x^3
+                \end{array}
+            \right]
+            \; 
+            b = \left[
+                \begin{array}{l}
+                    40 + 78x + x^2 + 119x^3 \\
+                    11 + 31x + 57x^2 + 90x^3 \\
+                    108 + 72x + 47x^2 + 14x^3
+                \end{array}
+            \right]
+            \]
+            \vspace{-0.5em}
+            \[
+            a + b = \left[
+                \begin{array}{l}
+                    133 + 129x + 35x^2 + 173x^3 \\
+                    38 + 118x + 138x^2 + 96x^3 \\
+                    120 + 87x + 93x^2 + 136x^3
+                \end{array}
+            \right] \mod 137
+            = \left[
+                \begin{array}{l}
+                    133 + 129x + 35x^2 + 36x^3 \\
+                    38 + 118x + x^2 + 96x^3 \\
+                    120 + 87x + 93x^2 + 126x^3
+                \end{array}
+            \right]
+            \]
+            e $a^T + b = a[1]b[1] + a[2]b[2] + a[3]b[3] = 93 + 59x + 44x^2 + 132x^3$ 
+        \par}
+    \end{boxA}
+\end{flushleft}
+
+\begin{flushleft}
+    Introduciamo il concetto di \textbf{\textit{size}} sia per gli \textbf{interi} in $\mathbb{Z}_q$, che per i \textbf{polinomi} in $R_q = \mathbb{Z}_q[x](x^n+1)$ ed infine per i vettori di polinomi in $R_q^k$. La \textbf{dimensione} viene calcolata come l'``\textbf{\textit{infinity norm}}'', che viene rappresentata con $|| \cdot ||_{\infty}$ per approfondire queste concetto avremo bisogno prima di definire il concetto di \textbf{modulo simmetrico}.
+
+    \textcolor{red}{\textbf{\textit{Symmetric mod}: q dispari}} \newline
+    \begin{minipage}[t]{0.45\textwidth}
+        Consideriamo $q \in \mathbb{N}$ \textbf{dispari} e $r \in \mathbb{Z}_q$. Allora valuteremo: \[
+            r \; \text{mods} \; q = \left\{
+                \begin{array}{crl}
+                    r & \mbox{if} & r \leq (q-1)/2 \\ 
+                    r - 1 & \mbox{if} & r > (q-1)/2
+                \end{array}
+            \right.
+        \]
+        in questo modo avremo che $-(q-1)/2 \leq r \; \text{mods} \; q \leq (q-1)/2$.
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.45\textwidth}
+        \vspace{-3.5em}
+        \includegraphics[width=\textwidth]{img/01_mods_odd}
+        \label{fig:01_mods_odd}
+    \end{minipage}
+
+    \textcolor{red}{\textbf{\textit{Symmetric mod}: q pari}} \newline
+    \begin{minipage}[t]{0.455\textwidth}
+        Consideriamo $q \in \mathbb{N}$ \textbf{pari} e $r \in \mathbb{Z}_q$. Allora valuteremo: \[
+            r \; \text{mods} \; q = \left\{
+                \begin{array}{crl}
+                    r & \mbox{if} & r \leq q/2 \\ 
+                    r - 1 & \mbox{if} & r > q/2
+                \end{array}
+            \right.
+        \]
+        in questo modo avremo che $-q/2 < r \; \text{mods} \; q \leq q/2$. Possiamo scrivere sia $\text{mods} \; q$ che utilizzare la seguente sintassi: $\mod^+ q$.
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.45\textwidth}
+        \vspace{-3.5em}
+        \includegraphics[width=\textwidth]{img/01_mods_odd}
+        \label{fig:01_mods_odd}
+    \end{minipage}
+    
+    \vspace{-3.5em}
+    Possiamo scrivere sia $\text{mods} \; q$ che utilizzare la seguente sintassi: $\mod^+ q$.
 \end{flushleft}
