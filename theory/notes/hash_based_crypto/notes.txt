@@ -1,0 +1,151 @@
+# Hash-based Cryptography
+
+## Introduction
+1. Definition of integrity and authentication
+2. Definition of the security criteria for the Signature scheme - threat modelling
+3. Family of signature scheme: RSA, ECDSA, EdDSA -> both we will completly broken by quantum computer
+4. Dilitium and Falcom -> post-quantum algorithm, that are quantum resistance
+
+RSA, EC cryptography and lattice-based cryptography depend not only on the hardness of numberic problem, but also on the security properties of cryptography hash function.
+Hash-based signature scheme are first proposed by **Leslie Lamport** in 1975 followed by important improvements by **Winternitz** and **Merkle** in 1979
+-> unique advantages: the only cryptographic primitive employed is a hash function.
+
+PRO: resists against both classical and quantum attacks
+CONTRO: large public keys and large signatures
+
+Standardize hash-based signature scheme:
+1. Leighton-Micali Signature Scheme (LMS) [ NIST SP 800-208 or RFC 8554 ]
+2. eXtended Merkle Signature Scheme (XMSS) [ NIST SP 800-208 or RFC 8391 ]
+
+both LMS and XMSS are classified as **stateful** signature scheme, because the signer must keep track of some non-secret data called state.
+properly storing and updating the state is critical for the security of LMS and XMSS.
+
+3. SPHINCS+ [ FIPS 205 ]: is a **stateless** signature scheme that eliminates the need for tracking non-secret data.
+
+## Hash Function
+1. Definition of hash function, some notes: 
+    - H is called an n-bit hash function
+    - H(x) is called hash or message digest of x 
+    - The description of hash function is public, and no keys are needed
+2. Security requirements:
+    - Pre-image Resistance (One Way)
+    - Secondo Pre-image Resistance
+    - Collision Resistance: since the domain of H is tipically much larger than its sub-domain collision must exists by the pigeon hole principle.
+      The key question is not their existance but whether any one collision can be found efficently.
+
+There are some type of relations between this security requirements:
+1. if a hash function is collision resistant, the is also second pre-image collision resistance.
+2. collision resistant implies pre-image resistance, provided that the hash function is somewhat uniform, meaning that each hash value has approximately the same number of pre-images.
+3. pre-image resistance does not guarantee second pre-image resistance.
+4. 2PR imply PR for somewhat uniform hash function.
+5. 2PR does not imply CR.
+6. PR does not imply CR.
+
+From this relationships, we see that collision resistance is the strongest of the three properties. A collision resistance hash function is necessarily both PR and 2PR.
+The converse is not true. (is possible to proof this result in video V3b of Crypto 101: Building Blocks)
+
+3. Classical Attack (running time of fastest generic attack)
+    - finding PR: 2^n operation
+    - finding 2PR: 2^n operation
+    - finding CR: 2^{n/2} operation -> using VW parallel collsion search (V3c of Crypto 101: Build Blocks)
+4. Quantum Attack (runngin time of fastest / most cost-effective generic quantum attack)
+    - finding PR: 2^{n/2} operation (Grover's search)
+    - finding 2PR: 2^{n/2} operation (Grover's search)
+    - finding CR: 2^{n/2} operation -> using VW parallel collision search
+
+using SHA-2 or SHA-3 (check the security level of the version against classical attacks and quantum attacks)
+-> SHA-2 and SHA-3 are suitable for hash-based signature schemes in the post-quantum world.
+
+## Lamport one-time signature scheme
+Starting from describe the toy version: signing a single bit
+Consider G: {0, 1}^n -> {0, 1}^n is a preimage-resistant hash function
+
+1. Key Generation: Alice select x0, x1 \in {0, 1}^n, and computes y0 = G(x0) e y1 = G(x1).
+   In this case X = (x0, x1) is her private key and Y = (y0, y1) is her public key.
+   Observe that computing the private key from the public key is infeasible because we consider the hash function G to be preimage resistant.
+2. Signature Generation: To sign a bit m \in {0, 1}. Alice sets S = Xm. (To sign 0 -> x0, instead to sign 1 -> x1). Her signed message is (m, S)
+3. Signature Verification: Anyone who possesses an authentic copy of Y can verify that Ym = G(S)
+
+The single bit signing scheme can be generalized to allow signing messages of arbitrary bit lengths.
+In this case we consider two different hash function:
+  - G: {0, 1}^n -> {0, 1}^n is a preimage-resistant hash function
+  - H: {0, 1}^* -> {0, 1}^n is a collision-resistant hash function that maps inputs of any bit lengths to n bits output
+
+1. Key Generation: Alice select x_{i, j} \in_R {0, 1}^n for i = 0, 1 and j = 0, 1, ..., n - 1. Compute y_{i, y} = G(x_{i, j}).
+		   Alice sk is X = (x_{i, j}) and pk is Y = (y_{i, j})
+2. Signature Generation: to sign a message M \in {0, 1}^*, Alice compute H(M) = m = (h_0, h_1, ..., h_{n - 1}).
+			 Her signature for message M is S = (s_0, s_1, ..., s_{n - 1}) where s_j = x_{i, j}
+3. Signature Verification: to verify (M, S) anyone who possesses an authentic copy of Y can compute h = H(M) and check that y_{i, j} = G(s_j) for j = 0, 1, ..., n - 1
+
+OTS: a signed message (M, S) expose an half of the component of Alice's private key. A second signed message (M', S') is expected to expose an additional quarter of 
+     Alice's private key components.
+     -> Alice to preserve the security should sign only one message using the same private key. 
+     	-> Lamport's signature scheme is classified as One Time Signature scheme (OTS)
+
+SECURITY
+Definition: A one-time signature scheme is said to be secure if it is existentially unforgeable by a computationally bounded adversary who is permitted to obtain
+	    the signature for one message of the adversary's choosing (oracle)
+
+EFFICIENCY
+Private key and public key size: 2n^2 bits (for n = 256 -> bit length is: 16,384 bytes)
+Signature size: n^2 bits (for n = 256 -> bit length is: 8,192 bytes)
+
+Key Generation Time is 2n evaluation of the G hash function.
+Signature Generation is 1 evaluation of the H hash function.
+Signature Verification is 1 evaluation of the H hash function and n evaluation of the G function.
+
+## Lamport: Problems and Solutions
+OTS has the dimension of the signature, private key, and public key that are very large than the common standard like RSA and ECDSA.
+To reduce the private key size, the private key components x_{i, j} are generated from a randomly selected secret endbit seed and a counter using a Pseudorandom Funciont (PRF)
+  -> x_{i, j} = PRF(SEED, i, j)
+
+For example the PRF could be an HMAC with the seed serving as a secret key. The seed is securely stored, and used to generate the x_{i, j} when needed.
+This permit to reduce the private key size from 2n^2 bits to n bits. For example with n = 256 -> the sk size can be reduce from 16,384 bits to 256 bits (32 bytes).
+
+The other problem is the size of pk (2n^2 bits) and the size of sign (n^2 bits), the large size of the signature is conseguences of the facts the message - H(M) -
+are signed one bit at time.
+  -> The solution (Winternitz, 1979) is to sign w-bit block at time using hash chains
+
+Hash chains: is created by repeatedly applying a PR hash function to a randomly chosen initial value.
+  -> descript in the slide
+
+Winternitz OTS: use the hash chain and the csum to resist to existential forgery.
+
+EFFICIENCY
+Suppose that n=256 and w=8 (so a hash chain has length 255), then l1=32 (l1=n//w -> number of blocks in h), l2=2 (l2=log2(l1(2^w-1))/w+1 -> number of blocks in csum(h)), and l=l1+l2=34.
+The public key size is 1,088 bytes (vs. 16,384 bytes for the Lamport OTS).
+The signature size is 1,088 bytes (vs. 8,192 bytes for the Lamport OTS).
+The private key size is 32 bytes (using a secret seed and PRF).
+
+Both the Lamport and Winternitz OTS scheme share the same limitations: that a private key can only sign securly only one message.
+This is impractical for most applications due to the significant overhead of securely distributing public verification keys, for example, through certificates.
+Ideally the public key should be small, and, also, the private key should be small and permitted to securely sign many message.
+  -> generate many Winternitz OTS key pairs, and use them one at time.
+    -> need a large number of OTS keys if you expect to sign a large number of message. The total size of all the OTS pk is very large
+      -> use a Merkle tree to authenticate the OTS pk
+
+Main Idea: build a complete binary tree whose leaves represent the hashes of the individual OTS pk. 
+Each internal node's value is obtained by hashing the concatenation of the values of its two children recursively building up to a single root hash.
+The user's long-term public key is the value assigned to the root of the tree.
+Authentication paths to the root are used to confirm the authenticity of an individual OTS pk.
+
+The security relies on the collision resistance (CR) hash function F.
+
+EFFICIENCY v2
+Winternitz parameters: n=256, w=8, l=34.
+Merkle tree: Height 20 (so 2^{20} Winternitz OTS key pairs)
+ -> Long term public key size: 32 bytes
+ -> Private key size: 32 bytes (using a secret seed and PRF)
+ -> Signature size: 1,088 + 1088(Yi) + 20 * 32 (auth.path) = 2,816 bytes
+
+Thus, the Merkle Tree results in a very smallo long-term public key, substantially increased functionality, allowing 1 million signatures without changing the long term public key, 
+and only a modest increase of the signature size.
+
+! Problem: constructing a large Merkle tree is slow, 2^d OTS (d is the height of the tree) key pairs need to be generated in order to determine the root R (long-term public key) of the tree.
+  -> the Merkle tree is divided into smaller trees to form a hypertreee, also called multi-tree
+
+## Leighton-Micali Signature (LMS) scheme
+  -> build using Winternitz OTS and Merkle tree
+
+## Leighton-Micali Signature (LMS) scheme
+  -> build using Winternitz OTS and Merkle tree
