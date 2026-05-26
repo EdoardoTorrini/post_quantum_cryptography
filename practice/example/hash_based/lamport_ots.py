@@ -15,7 +15,7 @@ def compute_hexdigest(name: str, M: str | bytes, n: int = 32) -> str:
     try:
         return g.hexdigest()
     except TypeError:
-        return g.hexdigest(n)
+        return g.hexdigest(n) # type: ignore
 
 def key_generation(seed: int) -> tuple:
     sk, pk = [], []
