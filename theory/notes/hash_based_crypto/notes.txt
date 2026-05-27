@@ -149,3 +149,70 @@ and only a modest increase of the signature size.
 
 ## Leighton-Micali Signature (LMS) scheme
   -> build using Winternitz OTS and Merkle tree
+
+## Leighton-Micali Signature Scheme
+  -> combine WOTS with Merkle tree (RFC 8554) in the RFC are described three different type of signature scheme:
+    -> LM-OTS: one time signature scheme
+    -> LMS: LM-OTS + Merkle tree
+    -> HSS (Hierarchical signature scheme): LMS + hypertreee
+  LMS was adobted as NIST standard in 2020 (SP 800-208), pointing to the RFC 8554 adding some parameters sets.
+
+XMSS (eXtendable Merkle Signature Scheme): is another hash-based signature scheme, standardize by the IETF (RFC 8391) and by NIST (SP 800-28).
+  -> is very similar to LMS
+
+### LM-OTS
+is the WOTS with some modifications. it use the same parameters as WOTS. in the SP 800-28 is admitted for w only a values from the set {1, 2, 4, 8}
+in that way the only hash chain length admitted are {1, 3, 15, 255} respectively.
+
+1. The first difference is in the public key (pk), in WOTS the pk is Y = (y0, y1, ..., y_{l - 1}), instead in the LM-OTS the pk is K = H(y0 || y1 || ... || y_{l - 1}).
+  -> these final hash chain values can be derived from any signed message, the signature verifier can always reconstruct the pk K, during signature verification.
+
+2. The LM-OTS use a single hash function H: {0, 1}^* -> {0, 1}^n.
+
+3. In the LM-OTS a unique prefix is appended before hashing operation to support security proof.
+   This prefix ensure that each hash function invocation remains indipendent.
+   The prefix includes:
+     -> a randomly selected 32 bytes identifier string I of the Merkle tree associated with the LM-OTS istance.
+     -> a 4-bytes number q that identifies the tree's leaf associated with the LM-OTS istance.
+     -> the index i of the w-bit block h_i within the message hash/checksum, wich determines which hash chain to use.
+     -> the position j within a Winternitz chain.
+     -> 2-bytes constant: 0x8080 (for computing K) or 0x8181 (for hashing a message)
+
+4. A randomly-generated 256-bit string C is appended to the message M before hashing: h = H(C || M)
+     -> C is called the message randomizer.
+     -> C is included with the signature, since it's needed for signature verification
+   This eliminates the need for CR for H (since C is randomly chosen byte the signer each time a message is signed).
+
+### LMS
+use a height-d Merkle tree, whose leaves are associated with LM-OTS public keys K0, K1, ..., K_{2^d - 1}. so the total of 2^d keys.
+in the SP 800-208 are admitted like height-d parameters only {5, 10, 15, 20, 25}. and all private key (sk) are generated from a 256-bit random secret seed.
+  -> the ith component of private key associated with the leaf number q is H(I || q || 0xff || seed).
+
+the number of leaf of a Merkle tree are numbered sequentially from left to right and top to bottom. the long-term public key is the root of the Merkle tree.
+
+SECURITY
+The enhancements introduced by Leighton and Micali to their signature scheme, including the use of unique prefix for all hashed data, enables a formal security 
+analisys of LMS.
+  -> Katz, 2016: proven security in the random model.
+  -> Eaton, 2018: LMS is proven secure to quantum random oracle model. (adversary can query H in superposition)
+
+### HSS is the hypertreee version of LMS 
+  -> SP 800-208 permits hypertreee with as many as 8 layers.
+
+Use cases for HSS include scenarios where an entity anticipates signing a large number of messages during the lifetime of their long-term public key.
+Or if the entity needs to delegate signing privileges to two or more cryptography modules while the risk of OTS private key reuse.
+
+### XMSS
+  -> is very similar to LMS.
+
+The main difference is its use of "bitmarks", which are pseudorandom bit string that are XORed with inputs to the hash function. 
+The bitmarks enable security proofs for XMSS in the "standard model", wihtout needing to model the hash function as a random oracle.
+The hypertreee version of XMSS is called XMSS^{MT}, both are fully specified in RFC 8391, and additional parameters sets are defined in SP 800-208.
+
+LMS and XMSS are stateful signature scheme. A signer must be very careful not to reuse any of their OTS sk associated with their long-term pk.
+To enforce this requirements, the signer could keep track of a counter or key index that increments after each message is signed.
+  -> this type of data changes over time is called STATE.
+However maintaining state securely in practice can be challenging, if a system crashes and is restored to an earlier state, 
+the OTS sk might be reuse and security would be compromised.
+So stateful signature scheme are suitable for applications where state can be reliably managed. 
+For example, to authenticate software updates where signing is quite infrequent.
