@@ -192,7 +192,7 @@ the number of leaf of a Merkle tree are numbered sequentially from left to right
 
 SECURITY
 The enhancements introduced by Leighton and Micali to their signature scheme, including the use of unique prefix for all hashed data, enables a formal security 
-analisys of LMS.
+analysis of LMS.
   -> Katz, 2016: proven security in the random model.
   -> Eaton, 2018: LMS is proven secure to quantum random oracle model. (adversary can query H in superposition)
 
@@ -216,3 +216,59 @@ However maintaining state securely in practice can be challenging, if a system c
 the OTS sk might be reuse and security would be compromised.
 So stateful signature scheme are suitable for applications where state can be reliably managed. 
 For example, to authenticate software updates where signing is quite infrequent.
+
+## SPHINCS+
+LMS are stateful because must be track of which OTS keys have been used to sign the current message in order to ensure that an OTS sk is never reused
+instead SPHINCS+ is a signature scheme stateless.
+
+SPHINCS+ was designed by Bernstein, Hulsing, Kolbl, Niederhagen, Rijneveld and Schwabe and was standardize by NIST in August 2024 (FIPS 205) is official name is SLH-DSA
+(Stateless Hash-based Digital Signature Algorithm)
+
+The main idea is to use an hypertree with a very large number of leaves, each one represent signature key pairs for an OTS.
+To sign a message, the signer randomly selects one of these key pairs. A limit is placed on the total number of msg that can be signed,
+ensuring that the probability of key reuse is negligibly small.
+
+SPHINCS+ employs numerous optimizations. The two main optimizations: few-times signatures and virtual hypertrees.
+
+### Few-times signature schemes (FTS)
+Unlike a OTS scheme, a few-times signautre scheme (FTS) can be used a small number of times (ex. 5-10 times) before security degrades.
+The main idea is that each signature reveals only a small fraction of the private key components, unlike Lamport's OTS where a signle signature reveals half of the sk.
+  -> HORS
+
+HORS SECURITY ANALYSIS
+Suppose the adversary has obtained `c` signed messages (M_i, (C_i, S_i)), since the randomizers C_i were chosen by Alice, the adversary has no control over the hash values 
+h(i) = H(C_i || M_i)
+Assuming that H behaves like a random function, the `c` signed messages reveal at most `ck` randomly-selected components of X. To forge Alice's signature, the adversary needs to find
+a message M^* and randomizer C^* such that each x_{h_j^*} (where h^* = H(C^* || M^*) = (h_0^*, h_1^*, ..., h_{k-1}^*)) is among the revealed components of X.
+  -> this happens with probability at most (ck/t)^k: if this probability is negligible, Alice can securely sign up to `c` messages.
+
+Example: suppose n=256, k=16, m=16, t=2^{16}, and c=5
+  -> then the probability defined on the previous slide is (ck/t)^k ~= 2^{-154} which is negligible
+  -> one drawback: large public keys (nt bits = 256 * 2^{16} ~ 2.1 MB)
+Solutions: HORST (HORS with Trees), the `t` components of `Y` are assigned to the leaves of a height-m Merkle tree. The root of the tree is Alice's public key.
+Alice's signature on a message includes the components of Y needed to verify the signed message and also the authentication paths for each of these components.
+A verifier can use the authentication paths to confirm the authenticity of the pk components included in the signature.
+
+How to use Merkle tree in FT-> one drawback: large public keys (nt bits = 256 * 2^{16} ~ 2.1 MB)Solutions: HORST (HORS with Trees), the `t` components of `Y` are assigned to the leaves of a height-m Merkle tree. The root of the tree is Alice's public key.
+Alice's signature on a message includes the components of Y needed to verify the signed message and also the authentication paths for each of these components.
+A verifier can use the authentication paths to confirm the authenticity of the pk components included in the signature.
+
+How to use Merkle tree in FTS.
+Instead of using a Merkle tree with OTS, that would bring to have a construction of the Merkle tree infeasible. To each leaf can be associated to a pair of FTS instead of an OTS.
+Messages are signed using a randomly selected leaf's private keys.
+
+OTS = 1 / N ~ S^2 / 2N -> S = 2^{40} and d=207 the probability is at most 2^{-128}, but constructing a height-207 Merkle tree is completely impractical.
+FTS = 1 / N^{c-1} ~ S^c / c! * N^{c-1} -> S=2^{40}, c=5 and d=80, this probability is at most 1^{-127}, but constructing a height-80 Merkle tree is also impractical.
+
+### Virtual Hypertrees
+a virtual hypertree has L layers, each one consist of height-d Merkle trees, and every leaf of the Merkle trees in layers 1 to L-1 is associated with an OTS key pair.
+  -> each OTS sk is used to sign the root of the tree beneath (sotto) it.
+Every leaf of the Merkle trees in layer L is associated with an FTS key pair.
+  -> the FTS sk are used to sign messages.
+The root R of the hypertree is the user's long-term public key.
+
+All OTS and FTS sk are derived by applying a PRF to a single secret SEED and a unique index identifying the correspondig pk.
+The index might include the layer number, the tree identifier within that layer, and the public key's position within that tree
+  -> once SEED is choosen, the entire hypertree is fully defined even though it might be infeasible to actually construct the entire tree 
+     (this is the sense in which the hypertree is virtual)
+Any individual Merkle tree can be efficiently constructed from SEED
