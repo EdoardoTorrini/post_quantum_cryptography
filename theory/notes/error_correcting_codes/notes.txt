@@ -1,0 +1,8 @@
+# Error-Correcting Codes
+
+Coding theory in its broadest sense deals with techniques for the:
+  - efficient (data compression)
+  - secure (encryption and authentication)
+  - reliability (error-correction codes)
+transmission of data over communications channels that might be subject to non-malicious errors (noise) and adversarial intrusion.
+The latter includes passive intrusion (eavesdropping) and active intrusion (injection/deletion/modification).
