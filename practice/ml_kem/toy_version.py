@@ -1,4 +1,4 @@
-import secrets, random
+import secrets
 
 import numpy as np
 
@@ -26,6 +26,7 @@ def get_param() -> tuple:
 
 
 def sample_cbd(n: int, eta: int) -> np.ndarray:
+    # np.random.randint -> is not cryptographically secure, because use mersenne twister not csprng
     a = np.random.randint(0, 2, size=(n, eta)).sum(axis=1)
     b = np.random.randint(0, 2, size=(n, eta)).sum(axis=1)
     return a - b
@@ -33,6 +34,8 @@ def sample_cbd(n: int, eta: int) -> np.ndarray:
 
 def key_gen() -> tuple:
     q, n, k, eta_1, _ = get_param()
+
+    # np.random.randint -> is not cryptographically secure, because use mersenne twister not csprng
     A = [ [ np.random.randint(0, q, size=n) for _ in range(k) ] for _ in range(k) ]
     
     # for construct the vector s and e we have to took a random small value centerd in 0
